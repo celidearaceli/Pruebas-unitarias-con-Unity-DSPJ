@@ -20,11 +20,6 @@ public class TestSuite
     [UnityTest]
     public IEnumerator AsteroidsMoveDown()
     {
-        // 3
-        /*GameObject gameGameObject =
-            Object.Instantiate(Resources.Load<GameObject>("Prefabs/Game"));
-        game = gameGameObject.GetComponent<Game>();*/
-        // 4
         GameObject asteroid = game.GetSpawner().SpawnAsteroid();
         // 5
         float initialYPos = asteroid.transform.position.y;
@@ -39,9 +34,6 @@ public class TestSuite
     [UnityTest]
     public IEnumerator GameOverOccursOnAsteroidCollision()
     {
-        /*GameObject gameGameObject =
-            Object.Instantiate(Resources.Load<GameObject>("Prefabs/Game"));
-        game = gameGameObject.GetComponent<Game>();*/
         GameObject asteroid = game.GetSpawner().SpawnAsteroid();
         //1
         asteroid.transform.position = game.GetShip().transform.position;
@@ -53,20 +45,6 @@ public class TestSuite
 
         //Object.Destroy(game.gameObject);
     }
-
-    /*[SetUp]
-    public void Setup()
-    {
-        GameObject gameGameObject =
-            Object.Instantiate(Resources.Load<GameObject>("Prefabs/Game"));
-        game = gameGameObject.GetComponent<Game>();
-    }*/
-
-    /*[TearDown]
-    public void Teardown()
-    {
-        Object.Destroy(game.gameObject);
-    }*/
 
     [UnityTest]
     public IEnumerator LaserMovesUp()
@@ -114,6 +92,67 @@ public class TestSuite
         game.NewGame();
         //3
         Assert.False(game.isGameOver);
+    }
+
+    //----------------------------------------------------------
+    [UnityTest]
+    public IEnumerator ShipDoesNotMoveWithWASD()
+    {
+        GameObject shipObject = game.GetShip().gameObject;
+        Vector3 initialPosition = shipObject.transform.position;
+
+        yield return new WaitForSeconds(0.2f);
+
+        Assert.AreEqual(initialPosition, shipObject.transform.position);
+    }
+
+    [UnityTest]
+    public IEnumerator ShipMovement()
+    {
+        Ship ship = game.GetShip();
+        ship.isDead = false; 
+
+        Vector3 startPos = ship.transform.position;
+
+        ship.MoveRight();
+        yield return new WaitForSeconds(0.1f);
+
+        Assert.AreNotEqual(startPos, ship.transform.position, "La nave no se movió al llamar MoveRight.");
+
+        Vector3 afterMoveRight = ship.transform.position;
+
+        ship.MoveLeft();
+        yield return new WaitForSeconds(0.1f);
+
+        Assert.AreNotEqual(afterMoveRight, ship.transform.position, "La nave no se movió al llamar MoveLeft.");
+    }
+
+    [UnityTest]
+    public IEnumerator ShipDoesNotExceedLimits()
+    {
+        Ship ship = game.GetShip();
+        ship.isDead = false;
+
+        // 1) Forzamos una posición muy a la derecha (fuera del límite)
+        ship.transform.localPosition = new Vector3(100f, 0f, 0f);
+
+        // Llamamos a un movimiento que contiene la comprobación y el clamp
+        ship.MoveLeft(); // MoveLeft() contiene el clamp que ajusta a maxLeft = 40
+        yield return null; // avanza 1 frame (seguro y barato)
+
+        // Comprobamos que quedó en el límite derecho/izquierdo definido en el código
+        Assert.AreEqual(40f, ship.transform.localPosition.x, 0.001f,
+            "No se aplicó el límite (maxLeft = 40).");
+
+        // 2) Forzamos una posición muy a la izquierda (fuera del límite)
+        ship.transform.localPosition = new Vector3(-100f, 0f, 0f);
+
+        // Llamamos al otro movimiento que contiene su clamp
+        ship.MoveRight(); // MoveRight() contiene el clamp que ajusta a maxRight = -40
+        yield return null;
+
+        Assert.AreEqual(-40f, ship.transform.localPosition.x, 0.001f,
+            "No se aplicó el límite (maxRight = -40).");
     }
     
     [TearDown]
