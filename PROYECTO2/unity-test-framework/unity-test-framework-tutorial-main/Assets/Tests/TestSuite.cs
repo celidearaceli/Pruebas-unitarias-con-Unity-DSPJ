@@ -38,24 +38,43 @@ public class TestSuite
         Assert.AreNotEqual(startPos, skeletonObj.transform.position, 
             "El esqueleto no se movió hacia el jugador.");
     }
-
+    //----------------el inicia correctamente--------------
     [UnityTest]
     public IEnumerator GameStartsCorrectly()
     {
-        // Cargar la escena principal del juego (asegurate de usar el nombre exacto de la escena)
         SceneManager.LoadScene("Main"); 
-        yield return new WaitForSeconds(0.5f); // Espera corta para inicialización
+        yield return new WaitForSeconds(0.5f); 
+        Assert.AreEqual("Main", SceneManager.GetActiveScene().name, "La escena principal no se cargo correctamente");
 
-        // Verifica que la escena se haya cargado correctamente
-        Assert.AreEqual("Main", SceneManager.GetActiveScene().name, "La escena principal no se cargó correctamente.");
-
-        // Verifica que haya al menos un objeto activo en la escena
-        Assert.Greater(Object.FindObjectsOfType<GameObject>().Length, 0, "La escena está vacía, el juego no inició correctamente.");
+        Assert.Greater(Object.FindObjectsOfType<GameObject>().Length, 0, "La escena esta vacia, el juego no inicio correctamente");
     }
+
+    //----------------el esqueleto recibe daño--------------
+
+     [UnityTest]
+    public IEnumerator SkeletonReceivesDamage()
+    {
+        float initialHealth = skeleton.health;
+        skeleton.ApplyDamage(20f);
+        yield return null;
+        Assert.Less(skeleton.health, initialHealth, "El esqueleto no recibio daño correctamente.");
+    }
+    
+    //----------------El esqueleto muere al llegar a 0 de vida--------------
+    [UnityTest]
+    public IEnumerator SkeletonDiesInZero()
+    {
+        skeleton.ApplyDamage(999f);
+        yield return null;
+        Assert.IsTrue(skeleton.health <= 0f, "El esqueleto no murio al quedarse sin salud.");
+    }
+    
 
     [TearDown]
     public void Teardown()
     {
         Object.Destroy(skeletonObj);
     }
+
+  
 }
