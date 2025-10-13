@@ -96,7 +96,7 @@ public class TestSuite
 
     //----------------------------------------------------------
     [UnityTest]
-    public IEnumerator ShipDoesNotMoveWithWASD()
+    public IEnumerator ShipNotMoveWASD()
     {
         GameObject shipObject = game.GetShip().gameObject;
         Vector3 initialPosition = shipObject.transform.position;
@@ -128,31 +128,27 @@ public class TestSuite
     }
 
     [UnityTest]
-    public IEnumerator ShipDoesNotExceedLimits()
+    public IEnumerator LimitsShip()
     {
         Ship ship = game.GetShip();
         ship.isDead = false;
 
-        // 1) Forzamos una posición muy a la derecha (fuera del límite)
         ship.transform.localPosition = new Vector3(100f, 0f, 0f);
 
-        // Llamamos a un movimiento que contiene la comprobación y el clamp
-        ship.MoveLeft(); // MoveLeft() contiene el clamp que ajusta a maxLeft = 40
-        yield return null; // avanza 1 frame (seguro y barato)
+        ship.MoveLeft(); 
+        yield return null; 
 
-        // Comprobamos que quedó en el límite derecho/izquierdo definido en el código
         Assert.AreEqual(40f, ship.transform.localPosition.x, 0.001f,
-            "No se aplicó el límite (maxLeft = 40).");
+            "No se aplico el limite (maxLeft = 40).");
 
-        // 2) Forzamos una posición muy a la izquierda (fuera del límite)
+        
         ship.transform.localPosition = new Vector3(-100f, 0f, 0f);
 
-        // Llamamos al otro movimiento que contiene su clamp
-        ship.MoveRight(); // MoveRight() contiene el clamp que ajusta a maxRight = -40
+        ship.MoveRight(); 
         yield return null;
 
         Assert.AreEqual(-40f, ship.transform.localPosition.x, 0.001f,
-            "No se aplicó el límite (maxRight = -40).");
+            "No se aplico el limite (maxRight = -40).");
     }
     
     [TearDown]
